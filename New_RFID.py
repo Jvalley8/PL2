@@ -1,28 +1,23 @@
 import usb.core
 import usb.util
-import sys
 
-# Check Python version compatibility
-if sys.version_info[0] < 3 or (sys.version_info[0] == 3 and sys.version_info[1] < 4):
-    raise Exception("PyUSB requires at least Python 3.4")
-
-# Find J4210U device
-dev = usb.core.find(idVendor=0x1c34, idProduct=0x724e)
-
-# Check if device is found
+# Set up the USB device
+dev = usb.core.find(idVendor=0x0403, idProduct=0x6015)
 if dev is None:
-    raise Exception("J4210U device not found")
+    raise ValueError('Device not found')
 
-# Set configuration
+# Set the configuration
 dev.set_configuration()
 
-# Write to tag
-ep_out = dev[0][(0, 0)][0]
-ep_out.write(b'\x00\x00\x00\x00\x02\x05\x00\x00\x00')
+# Set up the endpoint
+endpoint_out = dev[0][(0, 0)][0]
 
-# Read tag response
-ep_in = dev[0][(0, 0)][1]
-response = ep_in.read(8)
+# Define the data to write to the tag
+data = bytearray(b'\xE0\x00\x00\x2C\x05\x00\x01\x01\x01\x03\x00\x00\x02\xD5\x41\x43\x4D\x45\x20\x54\x45\x53\x54\x20\x54\x41\x47')
 
-# Print response
-print(response)
+# Write the data to the tag
+try:
+    dev.write(endpoint_out.bEndpointAddress, data, 1000)
+    print("Data written to tag successfully!")
+except usb.core.USBError as e:
+    print("Error writing to tag: ", e)
