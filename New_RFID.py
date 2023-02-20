@@ -1,23 +1,30 @@
-import usb.core
-import usb.util
+import serial
 
-# Set up the USB device
-dev = usb.core.find(idVendor=0x0403, idProduct=0x6015)
-if dev is None:
-    raise ValueError('Device not found')
+ser = serial.Serial('/dev/ttyUSB0', 9600, timeout=1)
 
-# Set the configuration
-dev.set_configuration()
+# Reset the reader
+ser.write(b'\x02\x00\x00\x03\x00\x01\xB5\xCD')
+response = ser.read(10)
+print(response)
 
-# Set up the endpoint
-endpoint_out = dev[0][(0, 0)][0]
+# Set the region to North America
+ser.write(b'\x02\x01\x07\x03\x01\x6A\xBB\xB5')
+response = ser.read(10)
+print(response)
 
-# Define the data to write to the tag
-data = bytearray(b'\xE0\x00\x00\x2C\x05\x00\x01\x01\x01\x03\x00\x00\x02\xD5\x41\x43\x4D\x45\x20\x54\x45\x53\x54\x20\x54\x41\x47')
+# Set the protocol to EPC Gen2
+ser.write(b'\x02\x01\x08\x03\x01\x6B\xDA\x5E')
+response = ser.read(10)
+print(response)
 
-# Write the data to the tag
-try:
-    dev.write(endpoint_out.bEndpointAddress, data, 1000)
-    print("Data written to tag successfully!")
-except usb.core.USBError as e:
-    print("Error writing to tag: ", e)
+# Enable the antenna
+ser.write(b'\x02\x01\x0A\x03\x01\x00\xCE\xCF')
+response = ser.read(10)
+print(response)
+
+# Write to tag
+ser.write(b'\x02\x01\x21\x07\x01\x00\x01\x03\xE8\x00\x01\xD0\x13')
+response = ser.read(10)
+print(response)
+
+ser.close()
