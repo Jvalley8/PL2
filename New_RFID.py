@@ -1,24 +1,18 @@
 import serial
+import time
 
-ser = serial.Serial('/dev/ttyACM0', 57600, timeout=1)
+ser = serial.Serial("/dev/ttyS0", baudrate=115200)
 
-# Reset and Set Region to FCC
-ser.write(b'\xA0\x03\x01\x00\xA2')
-ser.read(7)
+def read_tag():
+    ser.write(bytearray.fromhex("B000000A0F01049500000000")) # Send command to read tag
+    response = ser.read(64) # Read response from reader
+    if response[0] == 0xB0 and response[1] == 0x00: # Check if response is valid
+        tag_data = response[5:-2].hex().upper()
+        print("Tag data: " + tag_data)
+    else:
+        print("Error reading tag")
 
-print("Place tag within range to write EPC")
-input("Press Enter to continue...")
-
-# Write EPC to Tag
-tag_id = b'\x30\x00\x00\x03\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
-ser.write(b'\xA0\x04\x03\x01\x02\xE0' + tag_id)
-ser.read(7)
-
-print("Place tag within range to read EPC")
-input("Press Enter to continue...")
-
-# Read EPC from Tag
-ser.write(b'\xA0\x03\x01\x00\xA2')
-epc = ser.read(20)
-
-print("EPC read from tag: ", epc.hex())
+while True:
+    input("Press Enter to read tag...")
+    read_tag()
+    time.sleep(1)
