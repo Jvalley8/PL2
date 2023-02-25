@@ -1,34 +1,36 @@
-import serial
 import RPi.GPIO as GPIO
+import serial
 import time
 
-# Set up GPIO UART pins
-TX_PIN = 14
-RX_PIN = 15
+# Set up GPIO pins
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(TX_PIN, GPIO.OUT)
-GPIO.setup(RX_PIN, GPIO.IN)
+GPIO.setup(18, GPIO.OUT)
+GPIO.setup(23, GPIO.OUT)
 
-# Open serial port
-ser = serial.Serial(
-    port="/dev/serial0",
-    baudrate=115200,
-    parity=serial.PARITY_NONE,
-    stopbits=serial.STOPBITS_ONE,
-    bytesize=serial.EIGHTBITS,
-    timeout=1,
-)
+# Set up serial port
+ser = serial.Serial('/dev/serial0', 115200, timeout=1)
 
-# Wait for reader to initialize
-time.sleep(2)
+# Send write command
+ser.write(bytes.fromhex('B00103000000002A3C94'))
 
-# Write tag
-tag_id = "123456789ABCDEF012345678"
-tag_data = "Hello, world!"
-write_cmd = f"WRITE_TAG_EPC_DATA {tag_id} {tag_data}\n".encode()
-ser.write(write_cmd)
-response = ser.readline()
-print(response.decode())
+# Wait for user prompt to put tag in range
+input("Please place tag in range, then press Enter to continue...")
+
+# Enable write pin
+GPIO.output(18, GPIO.HIGH)
+
+# Wait for write pin to stabilize
+time.sleep(0.1)
+
+# Disable write pin
+GPIO.output(18, GPIO.LOW)
+
+# Wait for write to complete
+time.sleep(0.5)
+
+# Disable read pin
+GPIO.output(23, GPIO.LOW)
 
 # Close serial port
 ser.close()
+
