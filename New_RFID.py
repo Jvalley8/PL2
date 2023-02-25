@@ -1,18 +1,18 @@
 import serial
-import time
 
-ser = serial.Serial("/dev/ttyS0", baudrate=115200)
+ser = serial.Serial('/dev/ttyS0', 9600, timeout=1)  # replace '/dev/ttyS0' with your serial port
 
-def read_tag():
-    ser.write(bytearray.fromhex("B000000A0F01049500000000")) # Send command to read tag
-    response = ser.read(64) # Read response from reader
-    if response[0] == 0xB0 and response[1] == 0x00: # Check if response is valid
-        tag_data = response[5:-2].hex().upper()
-        print("Tag data: " + tag_data)
-    else:
-        print("Error reading tag")
+# command to write to tag
+cmd = bytearray([0xBB, 0x08, 0x00, 0x00, 0x00, 0x01, 0x01, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x01, 0xE0, 0x04, 0x0E])
 
-while True:
-    input("Press Enter to read tag...")
-    read_tag()
-    time.sleep(1)
+ser.write(cmd)
+
+response = ser.read(20)
+
+# check response for success/failure
+if response[2] == 0x00:
+    print("Tag write successful")
+else:
+    print("Tag write failed")
+
+ser.close()
