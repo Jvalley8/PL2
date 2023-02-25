@@ -1,36 +1,20 @@
-import RPi.GPIO as GPIO
 import serial
-import time
 
-# Set up GPIO pins
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(18, GPIO.OUT)
-GPIO.setup(23, GPIO.OUT)
+# Set up the serial connection
+ser = serial.Serial(
+    port='/dev/serial0', # serial port connected to the M6E Nano reader
+    baudrate=115200,     # baud rate for the serial connection
+    timeout=1            # timeout for the serial read
+)
 
-# Set up serial port
-ser = serial.Serial('/dev/serial0', 115200, timeout=1)
+# Enable write mode
+ser.write(bytes.fromhex('B001800000')) # EPC Gen2 Set Write Mode Command
 
-# Send write command
-ser.write(bytes.fromhex('B00103000000002A3C94'))
+# Write the tag data (replace '11223344' with the desired tag data)
+ser.write(bytes.fromhex('B304' + '11223344')) # EPC Gen2 Write Tag Command
 
-# Wait for user prompt to put tag in range
-input("Please place tag in range, then press Enter to continue...")
+# Read the response from the M6E Nano
+response = ser.read(128)
 
-# Enable write pin
-GPIO.output(18, GPIO.HIGH)
-
-# Wait for write pin to stabilize
-time.sleep(0.1)
-
-# Disable write pin
-GPIO.output(18, GPIO.LOW)
-
-# Wait for write to complete
-time.sleep(0.5)
-
-# Disable read pin
-GPIO.output(23, GPIO.LOW)
-
-# Close serial port
-ser.close()
-
+# Print the response
+print(response)
