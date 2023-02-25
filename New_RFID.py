@@ -1,18 +1,23 @@
 import serial
 
-ser = serial.Serial('/dev/ttyS0', 9600, timeout=1)  # replace '/dev/ttyS0' with your serial port
+ser = serial.Serial('/dev/ttyUSB0', 115200, timeout=1)
 
-# command to write to tag
-cmd = bytearray([0xBB, 0x08, 0x00, 0x00, 0x00, 0x01, 0x01, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x01, 0xE0, 0x04, 0x0E])
+# Send the "set protocol" command
+ser.write(b'\xA0\x03\x03\x03\xD9')
 
-ser.write(cmd)
+# Wait for the reader to respond
+response = ser.read(4)
+if response != b'\xA0\x03\x00\xF7':
+    print('Error setting protocol')
+    exit()
 
-response = ser.read(20)
+# Send the "write tag" command
+ser.write(b'\xA0\x07\x02\xEB\x03\x01\x00\x11\x22\x33\x44\x55\x66\x77\x88\x99\xAA\xBB\xCC\xDD\xEE\xFF')
 
-# check response for success/failure
-if response[2] == 0x00:
-    print("Tag write successful")
-else:
-    print("Tag write failed")
+# Wait for the reader to respond
+response = ser.read(4)
+if response != b'\xA0\x07\x00\xE5':
+    print('Error writing tag')
+    exit()
 
-ser.close()
+print('Tag written successfully')
