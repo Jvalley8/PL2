@@ -1,4 +1,6 @@
+
 import serial
+import RPi.GPIO as GPIO
 
 # Set up the serial connection
 ser = serial.Serial(
@@ -7,14 +9,19 @@ ser = serial.Serial(
     timeout=1            # timeout for the serial read
 )
 
-# Enable write mode
-ser.write(bytes.fromhex('B001800000')) # EPC Gen2 Set Write Mode Command
+# Set up the GPIO pins for the M6E Nano reader
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(18, GPIO.OUT)  # GPIO 18 controls the M6E Nano's EN pin
+GPIO.output(18, GPIO.HIGH)  # enable the M6E Nano
 
-# Write the tag data (replace '11223344' with the desired tag data)
-ser.write(bytes.fromhex('B304' + '11223344')) # EPC Gen2 Write Tag Command
+# Send the command to read a tag
+ser.write(bytes.fromhex('A000300B9163960080')) # EPC Gen2 Read Tag Command
 
 # Read the response from the M6E Nano
 response = ser.read(128)
 
 # Print the response
 print(response)
+
+# Disable the M6E Nano
+GPIO.output(18, GPIO.LOW)
