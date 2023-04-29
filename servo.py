@@ -1,5 +1,4 @@
 import RPi.GPIO as GPIO
-import time
 
 # Set the GPIO pin numbers for the servos
 pan_pin = 18
@@ -29,7 +28,7 @@ tilt_pwm.start(0)
 def set_servo_position(pwm, position):
     duty = (position / 180.0) * (duty_max - duty_min) + duty_min
     pwm.ChangeDutyCycle(duty)
-    time.sleep(0.3)
+    GPIO.wait_for_edge(pwm_pin, GPIO.RISING)
 
 # Move the pan servo to the left
 set_servo_position(pan_pwm, 0)
