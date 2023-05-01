@@ -33,7 +33,7 @@ GPIO.setup(led, GPIO.OUT)
 
 #Initialize the PWM Objects for the servos
 pan_pwm = GPIO.PWM(pan_pin, pwm_freq)
-tilt_pwm = GPIO.PWM(tilt_pwm, pwm_freq)
+tilt_pwm = GPIO.PWM(tilt_pin, pwm_freq)
 
 #Start the PWM signals with 0 duty cycle
 pan_pwm.start(0)
