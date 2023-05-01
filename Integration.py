@@ -50,12 +50,10 @@ except Exception as e:
 
 print("Connection Successful")
 
-#Sets the cursors and sql commands to run later in the code
-cursorRFID = db.cursor()
+#Sets the cursor and sql commands to run later in the code
+cursor = db.cursor()
 sqlRFID = "INSERT INTO RFID (EPC) VALUES (%s)"
-cursor = db.cursor()
 sqlGPS = "INSERT INTO GPS (Coordinates) VALUES (%s)"
-cursor = db.cursor()
 sql = "INSERT INTO Images (Photo_data) VALUES (%s)"
 
 #Function to set and change duty cycles for the pan tilt servos
@@ -122,7 +120,7 @@ def captureImages():
 
 def get_GPS():
     ser.write(b'AT+CGPS=1\r\n')
-    sleep(2)
+    sleep(0.5)
     ser.write(b'AT+CGPSINFO\r\n')
     Coordinates = ser.readline()
     ##print(Coordinates)
@@ -154,7 +152,7 @@ def get_GPS():
         
         if Final_Coordinates:
             print("GPS is being put in database")
-            cursorGPS.execute(sqlGPS, (Final_Coordinates))
+            cursor.execute(sqlGPS, (Final_Coordinates))
             db.commit()        
 
 
