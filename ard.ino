@@ -9,6 +9,7 @@
   If using the Simultaneous RFID Tag Reader (SRTR) shield, make sure the serial slide
   switch is in the 'SW-UART' position
 */
+//Altered Code
 
 #include <SoftwareSerial.h> //Used for transmitting to the device
 
@@ -24,18 +25,14 @@ void setup()
 
   if (setupNano(38400) == false) //Configure nano to run at 38400bps
   {
-    Serial.println(F("Module failed to respond. Please check wiring."));
-    while (1); //Freeze!
+   // Serial.println(F("Module failed to respond. Please check wiring."));
+    //while (1); //Freeze!
   }
 
   nano.setRegion(REGION_NORTHAMERICA); //Set to North America
 
-  nano.setReadPower(500); //5.00 dBm. Higher values may caues USB port to brown out
+  nano.setReadPower(1700); //5.00 dBm. Higher values may caues USB port to brown out
   //Max Read TX Power is 27.00 dBm and may cause temperature-limit throttling
-
-  Serial.println(F("Press a key to begin scanning for tags."));
-  while (!Serial.available()); //Wait for user to send a character
-  Serial.read(); //Throw away the user's character
 
   nano.startReading(); //Begin scanning for tags
 }
@@ -48,30 +45,13 @@ void loop()
 
     if (responseType == RESPONSE_IS_KEEPALIVE)
     {
-      Serial.println(F("Scanning"));
+      //Serial.println(F("Scanning"));
     }
     else if (responseType == RESPONSE_IS_TAGFOUND)
     {
-      //If we have a full record we can pull out the fun bits
-      int rssi = nano.getTagRSSI(); //Get the RSSI for this tag read
-
-      long freq = nano.getTagFreq(); //Get the frequency this tag was detected at
-
-      long timeStamp = nano.getTagTimestamp(); //Get the time this was read, (ms) since last keep-alive message
 
       byte tagEPCBytes = nano.getTagEPCBytes(); //Get the number of bytes of EPC from response
 
-      Serial.print(F(" rssi["));
-      Serial.print(rssi);
-      Serial.print(F("]"));
-
-      Serial.print(F(" freq["));
-      Serial.print(freq);
-      Serial.print(F("]"));
-
-      Serial.print(F(" time["));
-      Serial.print(timeStamp);
-      Serial.print(F("]"));
 
       //Print EPC bytes, this is a subsection of bytes from the response/msg array
       Serial.print(F(" epc["));
