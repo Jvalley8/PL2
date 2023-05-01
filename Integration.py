@@ -121,10 +121,10 @@ def captureImages():
     
 
 def get_GPS():
-    serGPS.write(b'AT+CGPS=1\r\n')
+    ser.write(b'AT+CGPS=1\r\n')
     sleep(2)
-    serGPS.write(b'AT+CGPSINFO\r\n')
-    Coordinates = serGPS.readline()
+    ser.write(b'AT+CGPSINFO\r\n')
+    Coordinates = ser.readline()
     ##print(Coordinates)
     if b'+CGPSINFO: ' in Coordinates:
         global GPSDATA
