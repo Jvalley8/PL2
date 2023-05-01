@@ -118,7 +118,7 @@ def captureImages():
     
     
 
-def get_GPS():
+def getGPS():
     ser.write(b'AT+CGPS=1\r\n')
     sleep(0.5)
     ser.write(b'AT+CGPSINFO\r\n')
